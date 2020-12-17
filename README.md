@@ -8,7 +8,7 @@ Do you want to draw on your screen without even touching it by just waving your 
 **I've used Computer vision technique of OpenCV to build this project**
 ***
 ## Visuals
-![Live Demo](target url)
+![Live Demo](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Resources/20201217_082624_515.jpg)
 ***
 ## Installation
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the following packages.
