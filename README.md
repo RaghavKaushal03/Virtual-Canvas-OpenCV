@@ -22,13 +22,13 @@ pip install opencv
 ## Marker
 The marker I've used is a blue ballpoint pen cap which is easily available everywhere.
 
-![Marker](target url)
+![Marker](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Resources/marker.jpg)
 
-You can change your marker easily by changing code in [Virtual_Paint(new)](target url) from
+You can change your marker easily by changing code in [Virtual_Paint(new)](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Virtual_Paint(new).py) from
 ```
  line number 10 to 16.
 ```
-> For your help I've added a python file [Color-Picker](Target url) in the Resources folder ;)
+> For your help I've added a python file [Color-Picker](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Resources/colorPicker.py) in the Resources folder ;)
 
 
 ***
