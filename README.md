@@ -22,7 +22,7 @@ pip install opencv
 ## Marker
 The marker I've used is a blue ballpoint pen cap which is easily available everywhere.
 
-![Marker](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Resources/marker.jpg)
+<img src="https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Resources/marker.jpg"  width="400" height="200">
 
 You can change your marker easily by changing code in [Virtual_Paint(new)](https://github.com/RaghavKaushal03/Virtual-Canvas-Opencv/blob/main/Virtual_Paint(new).py) from
 ```
