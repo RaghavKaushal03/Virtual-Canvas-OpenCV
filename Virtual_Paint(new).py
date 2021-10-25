@@ -2,11 +2,11 @@ import numpy as np
 import cv2
 from collections import deque
 
-#default trackbar function
+# default trackbar function
 def setValues(x):
    print("")
 
-# Small trackbar which works as Marker Color Picker
+# now these are the trackbars used for color tracking and by this we track color in hsv space
 cv2.namedWindow("Color detectors")
 cv2.createTrackbar("Hue Max", "Color detectors", 179, 180,setValues)
 cv2.createTrackbar("Saturation Max", "Color detectors", 255, 255,setValues)
@@ -15,7 +15,7 @@ cv2.createTrackbar("Hue Min", "Color detectors", 81, 180,setValues)
 cv2.createTrackbar("Saturation Min", "Color detectors", 88, 255,setValues)
 cv2.createTrackbar("Value Min", "Color detectors",99, 255,setValues)
 
-# Each Array Handle different color point.
+# creating different dequeue to store that color
 bluepoints = [deque(maxlen=1024)]
 greenpoints = [deque(maxlen=1024)]
 redpoints = [deque(maxlen=1024)]
@@ -27,17 +27,18 @@ green_index = 0
 red_index = 0
 yellow_index = 0
 
-#The kernel to be used for dilation purpose
-#Dilation is done here so that impurities are minimum and we get a clear image of our marker
+# The kernel to be used for dilation purpose
+# Dilation is done here so that impurities are minimum and we get a clear image of our marker
 kernel = np.ones((5,5),np.uint8)
 
-#The format is BGR not RGB in opencv
+# The format is BGR not RGB in opencv
 # blue , green , red , yellow
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255)]
 colorIndex = 0
+# color index is used to tell us which dequeue we have to put which color
 
 # Here is code for white Canvas
-paintWindow = np.zeros((471,636,3)) + 255
+paintWindow = np.zeros((471,636,3)) + 255 # added 255 because we want a white sheet
 paintWindow = cv2.rectangle(paintWindow, (40,1), (140,65), (0,0,0), 2)
 paintWindow = cv2.rectangle(paintWindow, (160,1), (255,65), colors[0], -1)
 paintWindow = cv2.rectangle(paintWindow, (275,1), (370,65), colors[1], -1)
@@ -55,12 +56,13 @@ cv2.namedWindow('Canvas', cv2.WINDOW_AUTOSIZE)
 # Loading the default webcam.
 cap = cv2.VideoCapture(0)
 
-#Always looping because its a video
+# Always looping because its a video
 while True:
     # Reading the frame from the camera
     ret, frame = cap.read()
-    #Flipping the frame to see same side of yours
+    # Flipping the frame to see same side of yours
     frame = cv2.flip(frame, 1)
+    # converting frame to hsv
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 
@@ -73,34 +75,38 @@ while True:
     Upper_hsv = np.array([u_hue,u_saturation,u_value])
     Lower_hsv = np.array([l_hue,l_saturation,l_value])
 
-
     # Adding the colour buttons to the live frame for colour access
+    # now we have already added these buttons in white sheet but we'll add them on every successive frame for live video
+
     frame = cv2.rectangle(frame, (40,1), (140,65), (122,122,122), -1)
     frame = cv2.rectangle(frame, (160,1), (255,65), colors[0], -1)
     frame = cv2.rectangle(frame, (275,1), (370,65), colors[1], -1)
     frame = cv2.rectangle(frame, (390,1), (485,65), colors[2], -1)
     frame = cv2.rectangle(frame, (505,1), (600,65), colors[3], -1)
+
     cv2.putText(frame, "CLEAR ALL", (49, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_4)
     cv2.putText(frame, "BLUE", (185, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_4)
     cv2.putText(frame, "GREEN", (298, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_4)
     cv2.putText(frame, "RED", (420, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_4)
     cv2.putText(frame, "YELLOW", (520, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150,150,150), 2, cv2.LINE_4)
 
-
     # Identifying the pointer by making its mask
+    # creating a proper mask using inRange function , errosion and dialation
+    # so that we'll have a bead in our mask
+
     Mask = cv2.inRange(hsv, Lower_hsv, Upper_hsv)
     Mask = cv2.erode(Mask, kernel, iterations=1)
     Mask = cv2.morphologyEx(Mask, cv2.MORPH_OPEN, kernel)
     Mask = cv2.dilate(Mask, kernel, iterations=1)
 
-    # Find contours for the pointer after idetifying it
+    # Find contours for the pointer after identifying it
     cnts,_ = cv2.findContours(Mask.copy(), cv2.RETR_EXTERNAL,
-    	cv2.CHAIN_APPROX_SIMPLE)
+        cv2.CHAIN_APPROX_SIMPLE)
     center = None
 
-    # Ifthe contours are formed
+    # If the contours are formed
     if len(cnts) > 0:
-    	# sorting the contours to find biggest
+        # sorting the contours to find biggest
         cnt = sorted(cnts, key = cv2.contourArea, reverse = True)[0]
         # Get the radius of the enclosing circle around the found contour
         ((x, y), radius) = cv2.minEnclosingCircle(cnt)
@@ -132,7 +138,7 @@ while True:
                     colorIndex = 2 # Red
             elif 505 <= center[0] <= 600:
                     colorIndex = 3 # Yellow
-        else :
+        else:
             if colorIndex == 0:
                 bluepoints[blue_index].appendleft(center)
             elif colorIndex == 1:
@@ -141,6 +147,7 @@ while True:
                 redpoints[red_index].appendleft(center)
             elif colorIndex == 3:
                 yellowpoints[yellow_index].appendleft(center)
+
     # Append the next deques when nothing is detected to avois messing up
     else:
         bluepoints.append(deque(maxlen=512))
